@@ -22,6 +22,16 @@ namespace SrtShift
             }
         }
 
+        public void ShiftPipe()
+        {
+            using (var infile = new StreamReader(Console.OpenStandardInput()))
+            using (var outfile = new StreamWriter(Console.OpenStandardOutput()))
+            {
+                outfile.AutoFlush = true;
+                ShiftStream(infile, outfile);
+            }
+        }
+
         public double _milliseconds;
         public double? _rate = null;
 
@@ -105,7 +115,7 @@ namespace SrtShift
             if (parts == 1)
                 s = "00:00:" + s;
 
-            return TimeSpan.Parse(s);
+            return TimeSpan.Parse(s, MyCulture);
         }
 
         public TimeSpan RateAdd(TimeSpan ts, double rate)

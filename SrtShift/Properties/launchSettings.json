@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SrtShift": {
+      "commandName": "Project",
+      "commandLineArgs": "\"Dead Set 2008 E01 BDRip 720p h265.en.srt\" 08 22 44:41 45:06"
+    }
+  }
+}

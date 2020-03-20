@@ -11,33 +11,41 @@ namespace SrtShift
     {
         static void Main(string[] args)
         {
-            if (args.Count() != 3 && args.Count() != 5)
+            int nArgs = args.Count();
+            if (nArgs < 2 || nArgs > 5)
                 Usage();
-            
-            CreateParamsFile(args);
+
+            bool usePipe = false;
+            int timeArg = 1; // First arg for timings
+            if (nArgs == 2 || nArgs == 4)
+            {
+                usePipe = true;
+                timeArg = 0; // No filename arg
+            }
+
+            if (!usePipe)
+                CreateParamsFile(args);
 
             try
             {
-                string filename = args[0];
-
                 var s = new SrtParser();
 
                 // s.RateCalc1("08", "22");
                 // s.RateCalc2("44:41", "45:06");
 
-                s.RateCalc1(args[1], args[2]);
-                if (args.Count() == 5)
-                    s.RateCalc2(args[3], args[4]);
+                s.RateCalc1(args[timeArg], args[timeArg+1]);
+                if (nArgs == 5)
+                    s.RateCalc2(args[timeArg+2], args[timeArg+3]);
 
-                /*
-
-                var sw = new StreamWriter(Console.OpenStandardOutput());
-                sw.AutoFlush = true;
-                Console.SetOut(sw);
-
-                */
-
-                s.ShiftFiles(filename);
+                if (usePipe)
+                {
+                    s.ShiftPipe();
+                }
+                else
+                {
+                    string filename = args[0];
+                    s.ShiftFiles(filename);
+                }
             }
             catch(Exception ex)
             {
@@ -58,6 +66,7 @@ namespace SrtShift
             Console.Error.WriteLine("will calculate a rate factor so that lastText matches lastSound.");
             Console.Error.WriteLine("");
             Console.Error.WriteLine("Output file will be \"<filenameWithoutExtension>.out.srt\"");
+            Console.Error.WriteLine("If filename is omitted we will read from stdin and write to stdout.");
             Environment.Exit(0);
         }
 
