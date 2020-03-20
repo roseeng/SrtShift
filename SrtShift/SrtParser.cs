@@ -32,14 +32,13 @@ namespace SrtShift
             }
         }
 
-        public double _milliseconds;
+        public TimeSpan _delta;
         public double? _rate = null;
 
         public void ShiftStream(StreamReader infile, StreamWriter outfile)
         {
             Console.Error.WriteLine("");
-            TimeSpan delta = TimeSpan.FromMilliseconds(_milliseconds);
-
+            
             while (!infile.EndOfStream)
             {
                 var countLine = infile.ReadLine();
@@ -57,17 +56,13 @@ namespace SrtShift
                 
                 var tfrom = timeLine.Substring(0, 12);
                 var tsfrom = ParseTime(tfrom);
-                tsfrom = tsfrom.Add(delta);
-                if (_rate.HasValue)
-                    tsfrom = RateAdd(tsfrom, _rate.Value);
+                tsfrom = Adjust(tsfrom);
                 if (tsfrom.TotalMilliseconds < 0)
                     tsfrom = TimeSpan.FromMilliseconds(0);
 
                 var tto = timeLine.Substring(17, 12);
                 var tsto = ParseTime(tto);
-                tsto = tsto.Add(delta);
-                if (_rate.HasValue)
-                    tsto = RateAdd(tsto, _rate.Value);
+                tsto = Adjust(tsto);
                 if (tsto.TotalMilliseconds < 0)
                     tsto = TimeSpan.FromMilliseconds(500);
 
@@ -91,22 +86,6 @@ namespace SrtShift
             return ts;
         }
 
-        public void RateCalc1(string firstSound, string firstText)
-        {
-            var sound = NiceParse(firstSound);
-            var text = NiceParse(firstText);
-
-            _milliseconds = sound.TotalMilliseconds - text.TotalMilliseconds;
-        }
-
-        public void RateCalc2(string lastSound, string lastText)
-        {
-            var sound = NiceParse(lastSound);
-            var text = NiceParse(lastText);
-
-            _rate = (sound.TotalMilliseconds - (text.TotalMilliseconds + _milliseconds)) / sound.TotalMilliseconds;            
-        }
-
         public TimeSpan NiceParse(string s)
         {
             int parts = s.Split(':').Count();
@@ -118,9 +97,32 @@ namespace SrtShift
             return TimeSpan.Parse(s, MyCulture);
         }
 
-        public TimeSpan RateAdd(TimeSpan ts, double rate)
+        public void RateCalc1(string firstSound, string firstText)
         {
-            var ts2 = ts + TimeSpan.FromMilliseconds(ts.TotalMilliseconds * rate);
+            var sound = NiceParse(firstSound);
+            var text = NiceParse(firstText);
+
+            _delta = sound - text;
+        }
+
+        public void RateCalc2(string firstSound, string firstText, string lastSound, string lastText)
+        {
+            var sound1 = NiceParse(firstSound);
+            var text1 = NiceParse(firstText);
+            var sound2 = NiceParse(lastSound);
+            var text2 = NiceParse(lastText);
+
+            _rate =  (sound2 - sound1).TotalMilliseconds / (text2 - text1).TotalMilliseconds;
+            _delta = sound1 - TimeSpan.FromMilliseconds(text1.TotalMilliseconds * _rate.Value);
+        }
+
+        public TimeSpan Adjust(TimeSpan ts)
+        {
+            TimeSpan ts2;
+            if (_rate.HasValue)
+                ts2 = TimeSpan.FromMilliseconds(ts.TotalMilliseconds * _rate.Value).Add(_delta);
+            else
+                ts2 = ts.Add(_delta);
             return ts2;
         }
 

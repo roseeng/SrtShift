@@ -33,9 +33,10 @@ namespace SrtShift
                 // s.RateCalc1("08", "22");
                 // s.RateCalc2("44:41", "45:06");
 
-                s.RateCalc1(args[timeArg], args[timeArg+1]);
-                if (nArgs == 5)
-                    s.RateCalc2(args[timeArg+2], args[timeArg+3]);
+                if (nArgs <= 3)
+                    s.RateCalc1(args[timeArg], args[timeArg + 1]);
+                else
+                    s.RateCalc2(args[timeArg], args[timeArg + 1], args[timeArg + 2], args[timeArg + 3]);
 
                 if (usePipe)
                 {
