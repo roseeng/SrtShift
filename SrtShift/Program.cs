@@ -49,11 +49,15 @@ namespace SrtShift
         private static void Usage()
         {
             Console.Error.WriteLine("Usage: SrtShift <filename> <firstSound> <firstText> { <lastSound> <lastText> }");
+            Console.Error.WriteLine("");
             Console.Error.WriteLine("where firstSound is a line you can hear as early as possible in the film, and");
             Console.Error.WriteLine("firstText is the timestamp of the corresponding textline.");
+            Console.Error.WriteLine("");
             Console.Error.WriteLine("This is normally all that's needed, but if the speed of the film does not match the");
             Console.Error.WriteLine("subtitles, you can add a sound/text pair from the end of the film, and SrtShift ");
             Console.Error.WriteLine("will calculate a rate factor so that lastText matches lastSound.");
+            Console.Error.WriteLine("");
+            Console.Error.WriteLine("Output file will be \"<filenameWithoutExtension>.out.srt\"");
             Environment.Exit(0);
         }
 
